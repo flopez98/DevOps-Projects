@@ -1,2 +1,2 @@
-20.169.238.141
-20.169.238.142
+20.169.238.141 apache_package=apache2 php_package=libapache2-mod-php
+20.169.238.142 apache_package=apache2 php_package=libapache2-mod-php
