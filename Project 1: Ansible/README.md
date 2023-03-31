@@ -18,6 +18,7 @@ To use this playbook, follow these steps:
 The playbook will run on all servers listed in the inventory file, so make sure to add or remove servers as needed.
 
 Note: If you are using a user other than root to login into the machines, please modify the remote_user value in the ansible.cfg file to match your username. If you are using root, please remove remote_user from the ansible.cfg file.
+
 Section 1: all
 
 This section contains pre-tasks that will be executed on all servers.
