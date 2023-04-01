@@ -7,3 +7,6 @@
 
 [file_servers]
 20.169.238.141
+
+[workstations]
+0.0.0.0
