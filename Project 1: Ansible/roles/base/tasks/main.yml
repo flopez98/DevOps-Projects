@@ -1,0 +1,5 @@
+- name: add ssh key for random
+  tags: always
+  authorized_key:
+    user: random
+    key: "" #Paste Ansible.pub key here
