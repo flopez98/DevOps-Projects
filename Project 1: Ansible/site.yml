@@ -3,19 +3,31 @@
   become: true
   pre_tasks:
 
-  - name: install updates (CentOS)
+  - name: Update repo cache (CentOS)
     tags: always
     dnf:
-      update_only: yes
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "CentOS"
 
-  - name: install updates (Ubuntu)
+  - name: Update repo cache (Ubuntu)
     tags: always
     apt:
-      upgrade: dist
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "Ubuntu"
+
+##################################################################
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: add ssh key for random
+    tags: always
+    authorized_key:
+      user: random
+      key: "" #Paste Ansible.pub key here
 
 ##################################################################
 
