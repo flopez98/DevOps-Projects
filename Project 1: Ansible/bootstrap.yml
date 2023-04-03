@@ -33,7 +33,7 @@
     tags: always
     authorized_key:
       user: random
-      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCgYk0qw2RLVNHsR6PriUm5PikqTUvMz+h6zbFTwFUAWkiKxnq13FLujkgtj0ZW0IfjhDAsmd0b+6hqyYXuY9lqwU2BZCy52eU4xVJlHrPEUWBkRsc5rKLuAYIC7nVBKMfzsjUSXflwC1WDIdSWbSURWWcebQGsbypqszmci84ZEWjURzx0iDa3+VuAJCMJevT060QGjw7oplWzS8DfGg25YL93VMYuaXevw3fTh3kUbFOKbyGXIoWNy7+HnL3BuXTLU+yfnngYYAXRr3h0aVDJRBXI/anMoX/yr+mJyyaxSN9ZnXeSYuGBVYvdWXZLxz56U5YJq9AYpLyPSnzmwj16eUkN3iYcYs14wqoS+P6OT0BjdMwi5JvO9oQ3clv8lK4iqvB4N3ZISj2HeLZ+FMPtJKvvVMmyCtO20faiGqw+/19pvVAfxJej0MtoyVBdApHMCuP+j7Uvzloo47mcjC1CPw8BH5vImTHlAuZfEBZoAW3F9BFYUUdHcNRh9uoOA4k= cloudlabs@cloudlabs-VirtualBox" #Paste Ansible.pub key here
+      key: "" #Paste Ansible.pub key here
 
   - name: add sudoers file for random
     tags: always
