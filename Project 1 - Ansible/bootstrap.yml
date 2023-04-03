@@ -1,0 +1,45 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (CentOS)
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+##################################################################
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: create random user
+    tags: always
+    user:
+      name: random #Set this user to remote_user in the ansible.cfg after creating the user.
+      groups: root
+
+  - name: add ssh key for random
+    tags: always
+    authorized_key:
+      user: random
+      key: "" #Paste Ansible.pub key here
+
+  - name: add sudoers file for random
+    tags: always
+    copy:
+      src: sudoer_random
+      dest: /etc/sudoers.d/random
+      owner: root
+      group: root
+      mode: 0440
