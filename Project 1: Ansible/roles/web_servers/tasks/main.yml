@@ -1,28 +1,16 @@
-- name: install apache2 and php packages for Ubuntu
-  tags: ubuntu,apache,apache2
-  apt:
-    name: 
-      - apache2
-      - libapache2-mod-php
-    state: latest
-  when: ansible_distribution == "Ubuntu"
-
-- name: Install apache and php packages for CentOS
-  tags: centos,apache,httpd
-  dnf:
-    name: 
-      - httpd
-      - php
-    state: latest
-  when: ansible_distribution == "CentOS"
+- name: install apache and php packages
+  tags: apache,httpd,php
+  package:
+    name:
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
 
 - name: start httpd (CentOS)
   tags: apache,centos,httpd
   service:
-    name: httpd
+    name: "{{ apache_service }}"
     state: started
     enabled: yes
-  when: ansible_distribution == "CentOS"
 
 - name: change e-mail address for admin
   tags: apache,centos,httpd
@@ -31,14 +19,7 @@
     regexp: '^ServerAdmin'
     line: ServerAdmin somebody@somewhere.net
   when: ansible_distribution == "CentOS"
-  register: httpd
-
-- name: restart httpd (CentOS)
-  tags: apache,centos,httpd
-  service:
-    name: httpd
-    state: restarted
-  when: httpd.changed
+  notify: restart_apache
 
 - name: Copy files to web servers
   tags: apache,apache2,httpd
