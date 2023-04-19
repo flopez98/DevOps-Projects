@@ -27,7 +27,7 @@ To get started with the project, follow the steps below:
 
 2. Change directory to the Lab3-Learning-Packer/Terraform/terraform-repo folder and run the following command to deploy a resource group named packer-rg.
 
-        cd Lab3-Learning-Packer/Terraform/terraform-repo
+        cd Project3-Learning-Packer/Terraform/packer-repo
         terraform init
 
 3. Run the following command to create the resource group:
@@ -42,7 +42,7 @@ To get started with the project, follow the steps below:
 
         cd ../Packer/windows
 
-5. Run the packer build . command to build the VM image and push it to Azure.
+5. Run the packer build command to build the VM image and push it to Azure.
 
         packer build .
 
