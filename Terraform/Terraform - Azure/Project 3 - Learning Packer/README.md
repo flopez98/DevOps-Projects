@@ -42,7 +42,7 @@ To get started with the project, follow the steps below:
 
         cd ../Packer/windows
 
-5. Run the packer build . command to build the VM image and push it to Azure.
+5. Run the packer build command to build the VM image and push it to Azure.
 
         packer build .
 
