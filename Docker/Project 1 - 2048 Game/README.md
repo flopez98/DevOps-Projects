@@ -59,7 +59,7 @@ These lines download the 2048 game source code from GitHub, unzip it, and move i
 
 This line specifies that the container should listen on port 80.
 
-CMD [ "/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf" ]
+    CMD [ "/usr/sbin/nginx", "-c", "/etc/nginx/nginx.conf" ]
 
 This line specifies the command to run when the container starts, which in this case is the Nginx web server.
 Deploying the Application to AWS Elastic Beanstalk
