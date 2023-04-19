@@ -1,0 +1,5 @@
+packer {
+  required_plugins {
+
+  }
+}
