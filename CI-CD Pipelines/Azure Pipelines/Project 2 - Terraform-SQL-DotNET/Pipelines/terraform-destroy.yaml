@@ -1,0 +1,45 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool:
+  vmImage: windows-latest
+
+variables:
+- group: Terraform
+
+stages:
+  - stage: Terraform
+    displayName: 'Terrafor: Destroy'
+    jobs:
+      - job: Destroy
+        displayName: 'Destroying Infra'
+        steps:
+          - task: TerraformInstaller@1
+            displayName: 'Installing Terraform'
+            inputs:
+              terraformVersion: 'latest'
+          
+          - task: TerraformTaskV4@4
+            displayName: 'Terraform Init'
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(Build.SourcesDirectory)/Terraform'
+              backendServiceArm: $(backendServiceArm)
+              backendAzureRmResourceGroupName: $(backendAzureRmResourceGroupName)
+              backendAzureRmStorageAccountName: $(backendAzureRmStorageAccountName)
+              backendAzureRmContainerName: $(backendAzureRmContainerName)
+              backendAzureRmKey: $(backendAzureRmKey)
+          
+          - task: TerraformTaskV4@4
+            displayName: 'Terraform Destroy'
+            inputs:
+              workingDirectory: '$(Build.SourcesDirectory)/Terraform'
+              provider: 'azurerm'
+              command: 'destroy'
+              commandOptions: '-auto-approve'
+              environmentServiceNameAzureRM: $(backendServiceArm)

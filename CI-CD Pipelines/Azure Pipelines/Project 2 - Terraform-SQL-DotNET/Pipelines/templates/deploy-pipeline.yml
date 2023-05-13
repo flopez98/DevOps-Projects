@@ -1,0 +1,45 @@
+steps:
+- task: SqlAzureDacpacDeployment@1
+  continueOnError: true
+  inputs:
+    azureSubscription: '$(ServicePrincipal)'
+    AuthenticationType: 'server'
+    ServerName: '$(sqlServerName)'
+    DatabaseName: 'appdb'
+    SqlUsername: '$(SqlUsername)'
+    SqlPassword: '$(SqlPassword)'
+    deployType: 'SqlTask'
+    SqlFile: '$(Build.SourcesDirectory)/setup.sql'
+    IpDetectionMethod: 'AutoDetect'
+    
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'current'
+    downloadType: 'single'
+    artifactName: 'sqlapp-artifact'
+    downloadPath: '$(System.ArtifactsDirectory)'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '$(ServicePrincipal)'
+    resourceGroupName: $(rgpName)
+    appType: 'webApp'
+    appName: '$(appName)'
+    package: '$(System.ArtifactsDirectory)/**/*.zip'
+    deploymentMethod: runFromPackage
+  retryCountOnTaskFailure: 3
+
+- task: AzureAppServiceSettings@1
+  inputs:
+    azureSubscription: '$(ServicePrincipal)'
+    appName: '$(appName)'
+    resourceGroupName: '$(rgpName)'
+    connectionStrings: |
+      [
+      {
+        "name": "SQLConnection",
+        "value": "Server=tcp:$(sqlServerName),1433;Initial Catalog=appdb;Persist Security Info=False;User ID=$(SqlUsername);Password=$(SqlPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+        "type": "SQLAzure",
+        "slotSetting": false
+      }
+      ]
