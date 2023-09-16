@@ -1,12 +1,6 @@
 trigger: none
 
 parameters:
-- name: orgUrl
-  displayName: Azure DevOps Organization URL (e.g. https://dev.azure.com/ExampleOrg/)
-  type: string
-- name: projName
-  displayName: Azure DevOps Project Name
-  type: string
 - name: personalAccessToken
   displayName: Personal Access Token
   type: string
@@ -26,11 +20,10 @@ stages:
         steps:
 
         - script: |
-            sed -i 's/\r$//' fetch_project_id.sh
-            chmod +x ./fetch_project_id.sh
-            ./fetch_project_id.sh ${{ parameters.orgUrl }} ${{ parameters.personalAccessToken }} ${{ parameters.projName }}
-          displayName: 'Fetch Azure DevOps Project ID and Set Project_ID Var'
-          workingDirectory: './Pipelines/variable-groups'
+            echo "Organization URL: $(System.TeamFoundationCollectionUri)"
+            echo "Project Name: $(System.TeamProject)"
+            echo "Project ID: $(System.TeamProjectId)"
+          displayName: 'Print Project Details'
 
         - task: TerraformInstaller@1
           displayName: 'Installing Terraform'
@@ -45,11 +38,12 @@ stages:
           displayName: 'Terraform Validate'
           workingDirectory: $(workingDirectory)
 
-        - script: terraform plan -var "project_id=$(Project_ID)"
+        - script: terraform plan
           displayName: 'Terraform Plan'
           workingDirectory: $(workingDirectory)
           env:
-            TF_VAR_org_service_url: ${{ parameters.orgUrl }}
+            TF_VAR_org_service_url: $(System.TeamFoundationCollectionUri)
+            TF_VAR_project_id: $(System.TeamProjectId)
             TF_VAR_personal_access_token: ${{ parameters.personalAccessToken }}
 
   - stage: manual_validation
@@ -76,13 +70,6 @@ stages:
       - job: apply_job
         displayName: 'Terraform Apply Job'
         steps:
-
-        - script: |
-            sed -i 's/\r$//' fetch_project_id.sh
-            chmod +x ./fetch_project_id.sh
-            ./fetch_project_id.sh ${{ parameters.orgUrl }} ${{ parameters.personalAccessToken }} ${{ parameters.projName }}
-          displayName: 'Fetch Azure DevOps Project ID and Set Project_ID Var'
-          workingDirectory: './Pipelines/variable-groups'
         
         - task: TerraformInstaller@1
           displayName: 'Installing Terraform'
@@ -93,9 +80,10 @@ stages:
           displayName: 'Terraform Init'
           workingDirectory: $(workingDirectory)
 
-        - script: terraform apply -auto-approve -var "project_id=$(Project_ID)"
+        - script: terraform apply -auto-approve
           displayName: 'Terraform Apply'
           workingDirectory: $(workingDirectory)
           env:
-            TF_VAR_org_service_url: ${{ parameters.orgUrl }}
+            TF_VAR_org_service_url: $(System.TeamFoundationCollectionUri)
+            TF_VAR_project_id: $(System.TeamProjectId)
             TF_VAR_personal_access_token: ${{ parameters.personalAccessToken }}
