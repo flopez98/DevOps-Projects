@@ -1,0 +1,101 @@
+trigger: none
+
+parameters:
+- name: orgUrl
+  displayName: Azure DevOps Organization URL (e.g. https://dev.azure.com/ExampleOrg/)
+  type: string
+- name: projName
+  displayName: Azure DevOps Project Name
+  type: string
+- name: personalAccessToken
+  displayName: Personal Access Token
+  type: string
+
+variables:
+  workingDirectory: './Pipelines/variable-groups/Terraform'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: plan_stage
+    displayName: 'Terraform Plan'
+    jobs:
+      - job: plan_job
+        displayName: 'Terraform Plan Job'
+        steps:
+
+        - script: |
+            sed -i 's/\r$//' fetch_project_id.sh
+            chmod +x ./fetch_project_id.sh
+            ./fetch_project_id.sh ${{ parameters.orgUrl }} ${{ parameters.personalAccessToken }} ${{ parameters.projName }}
+          displayName: 'Fetch Azure DevOps Project ID and Set Project_ID Var'
+          workingDirectory: './Pipelines/variable-groups'
+
+        - task: TerraformInstaller@1
+          displayName: 'Installing Terraform'
+          inputs:
+            terraformVersion: 'latest'
+
+        - script: terraform init
+          displayName: 'Terraform Init'
+          workingDirectory: $(workingDirectory)
+
+        - script: terraform validate
+          displayName: 'Terraform Validate'
+          workingDirectory: $(workingDirectory)
+
+        - script: terraform plan -var "project_id=$(Project_ID)"
+          displayName: 'Terraform Plan'
+          workingDirectory: $(workingDirectory)
+          env:
+            TF_VAR_org_service_url: ${{ parameters.orgUrl }}
+            TF_VAR_personal_access_token: ${{ parameters.personalAccessToken }}
+
+  - stage: manual_validation
+    displayName: 'Validate Terraform Plan'
+    dependsOn: 'plan_stage'
+    jobs:
+      - job: waitForValidation
+        displayName: Wait for external validation
+        pool: server
+        steps:
+        - task: ManualValidation@0
+          timeoutInMinutes: 5 # task times out in 5 minutes
+          inputs:
+            notifyUsers: ''
+            instructions: 'Please validate Terraform configuration and resume'
+            onTimeout: reject
+
+  - stage: apply_stage
+    displayName: 'Terraform Apply'
+    dependsOn: 
+      - 'manual_validation'
+      - 'plan_stage'
+    jobs:
+      - job: apply_job
+        displayName: 'Terraform Apply Job'
+        steps:
+
+        - script: |
+            sed -i 's/\r$//' fetch_project_id.sh
+            chmod +x ./fetch_project_id.sh
+            ./fetch_project_id.sh ${{ parameters.orgUrl }} ${{ parameters.personalAccessToken }} ${{ parameters.projName }}
+          displayName: 'Fetch Azure DevOps Project ID and Set Project_ID Var'
+          workingDirectory: './Pipelines/variable-groups'
+        
+        - task: TerraformInstaller@1
+          displayName: 'Installing Terraform'
+          inputs:
+            terraformVersion: 'latest'
+
+        - script: terraform init
+          displayName: 'Terraform Init'
+          workingDirectory: $(workingDirectory)
+
+        - script: terraform apply -auto-approve -var "project_id=$(Project_ID)"
+          displayName: 'Terraform Apply'
+          workingDirectory: $(workingDirectory)
+          env:
+            TF_VAR_org_service_url: ${{ parameters.orgUrl }}
+            TF_VAR_personal_access_token: ${{ parameters.personalAccessToken }}
