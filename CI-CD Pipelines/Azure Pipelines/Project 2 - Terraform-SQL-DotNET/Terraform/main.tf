@@ -38,7 +38,7 @@ resource "azurerm_service_plan" "plan67532" {
   sku_name            = "F1"
 }
 
-resource "azurerm_windows_web_app" "newapp59804305" {
+resource "azurerm_windows_web_app" "main" {
   name                = "app${random_string.name.result}"
   resource_group_name = azurerm_resource_group.az-test-webapp.name
   location            = azurerm_resource_group.az-test-webapp.location
@@ -57,7 +57,7 @@ resource "azurerm_windows_web_app" "newapp59804305" {
 
 }
 
-resource "azurerm_mssql_server" "sqlserver94569834" {
+resource "azurerm_mssql_server" "main" {
   name                         = "sqlserver${random_string.name.result}"
   resource_group_name          = azurerm_resource_group.az-test-webapp.name
   location                     = azurerm_resource_group.az-test-webapp.location
@@ -68,20 +68,20 @@ resource "azurerm_mssql_server" "sqlserver94569834" {
 
 resource "azurerm_mssql_firewall_rule" "example" {
   name             = "FirewallRule1"
-  server_id        = azurerm_mssql_server.sqlserver94569834.id
+  server_id        = azurerm_mssql_server.main.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
 }
 
 resource "azurerm_mssql_database" "appdb" {
   name         = "appdb"
-  server_id    = azurerm_mssql_server.sqlserver94569834.id
+  server_id    = azurerm_mssql_server.main.id
   collation    = "SQL_Latin1_General_CP1_CI_AS"
   license_type = "LicenseIncluded"
   max_size_gb  = 2
   sku_name     = "basic"
   depends_on = [
-    azurerm_mssql_server.sqlserver94569834
+    azurerm_mssql_server.main
   ]
 
 }
@@ -93,14 +93,14 @@ resource "null_resource" "terraform-to-devops-vars" {
    }
    provisioner "local-exec" {
     command = <<EOT
-      Write-Host "##vso[task.setvariable variable=SQL_SERVER_NAME;isOutput=true]${azurerm_mssql_server.sqlserver94569834.name}.database.windows.net"
+      Write-Host "##vso[task.setvariable variable=SQL_SERVER_NAME;isOutput=true]${azurerm_mssql_server.main.name}.database.windows.net"
       Write-Host "##vso[task.setvariable variable=RGP_NAME;isOutput=true]${azurerm_resource_group.az-test-webapp.name}"
-      Write-Host "##vso[task.setvariable variable=APP_NAME;isOutput=true]${azurerm_windows_web_app.newapp59804305.name}"
+      Write-Host "##vso[task.setvariable variable=APP_NAME;isOutput=true]${azurerm_windows_web_app.main.name}"
       EOT
     interpreter = ["Powershell", "-Command"]
   }
 
   depends_on = [
-    azurerm_mssql_server.sqlserver94569834
+    azurerm_mssql_server.main
   ]
 }

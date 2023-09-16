@@ -15,18 +15,7 @@ pool:
 variables:
 - group: Terraform
 - group: sql-credentials
-- name: skipBuildStage
-  value: false
-- name: skipTerraformStage
-  value: false
-- name: ServicePrincipal
-  value: 'Azure sub' # Change to the name of your Service Connection
-- name: solution
-  value: '**/*.sln'
-- name: buildPlatform
-  value: 'Any CPU'
-- name: buildConfiguration
-  value: 'Release'
+- group: shared-vars
 
 stages:
 - stage: Build
@@ -49,7 +38,9 @@ stages:
 
 - stage: Deployment
   displayName: 'Deployment Stage'
-  dependsOn: Terraform 
+  dependsOn: 
+    - Terraform
+    - Build 
   jobs:
     - job: Deploy
       displayName: 'App Deployment Job'
