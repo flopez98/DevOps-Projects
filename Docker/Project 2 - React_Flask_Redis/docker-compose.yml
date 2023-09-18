@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - 5000:5000
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    networks:
+      flask_network: 
+        ipv4_address: 172.28.0.10
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - 3000:80
+    depends_on:
+      - backend
+    networks:
+      - flask_network
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis_cache
+    networks:
+      - flask_network
+
+networks:
+  flask_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
